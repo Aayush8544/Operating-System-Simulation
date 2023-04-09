@@ -1,0 +1,73 @@
+class Job:
+    def __init__(self, name, estimated_time):
+        # Initialize a new Job object with a name and estimated run time
+        self.name = name
+        self.estimated_time = estimated_time
+        self.waiting_time = 0  # The amount of time this job has spent waiting
+    
+    def __repr__(self):
+        # Define how to represent this object as a string (e.g. when printed)
+        return self.name
+    
+    def priority(self):
+        # Calculate the priority of this job based on its waiting time and estimated run time
+        return 1 + self.waiting_time / self.estimated_time
+    
+    def run(self):
+        # Simulate running the job for one time unit
+        print(f"Running job {self.name}")
+        self.estimated_time -= 1
+    
+    def wait(self):
+        # Increment the waiting time of this job by one time unit
+        self.waiting_time += 1
+
+def main():
+    jobs = []
+    while True:
+        name = input("Enter job name (or enter to finish): ")
+        if name == '':
+            break
+        estimated_time = int(input("Enter estimated run time: "))
+        job = Job(name, estimated_time)  # Create a new Job object
+        jobs.append(job)  # Add the job to the list of jobs
+    
+    current_time = 0
+    gantt_chart = []
+    while jobs:
+        highest_priority_job = max(jobs, key=lambda job: job.priority())  # Find the job with the highest priority
+        gantt_chart.append(highest_priority_job.name)
+        print(f"Current time: {current_time}")
+        print(f"Highest priority job: {highest_priority_job}")
+        highest_priority_job.run()  # Run the job for one time unit
+        if highest_priority_job.estimated_time == 0:
+            jobs.remove(highest_priority_job)  # If the job is done, remove it from the list of jobs
+        else:
+            for job in jobs:
+                if job != highest_priority_job:
+                    job.wait()  # Increment the waiting time of all other jobs by one time unit
+        current_time += 1
+    
+    total_waiting_time = sum(job.waiting_time for job in jobs)  # Calculate the total waiting time of all jobs
+    num_jobs = len(jobs)
+    avg_waiting_time = total_waiting_time / num_jobs if num_jobs > 0 else 0  # Calculate the average waiting time
+    
+    print(f"Total waiting time: {total_waiting_time}")
+    print(f"Average waiting time: {avg_waiting_time}")
+    
+    # Print the Gantt chart
+    print("\nGantt chart:")
+    print("-" * (current_time + len(gantt_chart) + 1))
+    print("|", end="")
+    for i, job in enumerate(gantt_chart):
+        print(job.center(3), end="|")
+    print("")
+    print("-" * (current_time + len(gantt_chart) + 1))
+    print("0", end="")
+    for i in range(len(gantt_chart)):
+        print(" " * 2, end="")
+        print(str(i + 1), end="")
+    print("")
+
+if __name__ == '__main__':
+    main()
